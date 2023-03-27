@@ -45,23 +45,9 @@ public class ProductController {
         return productService.getProductById(id);
     }
 
-//    @PostMapping
-//    public ResponseEntity<String> createProduct(@RequestBody Product product ) {
-//        return productService.createProduct(product);
-//    }
-
     @PostMapping
-    public ResponseEntity<String> createProduct(@RequestParam("files") List<MultipartFile> files,
-                                                @RequestParam("product") String productJson) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Product product;
-        try {
-            product = objectMapper.readValue(productJson, Product.class);
-        } catch (JsonProcessingException e) {
-            return new ResponseEntity<>("Error while parsing product data", HttpStatus.BAD_REQUEST);
-        }
-
-        return productService.createProduct(product, files);
+    public ResponseEntity<String> createProduct(@RequestBody Product product ) {
+        return productService.addProduct(product);
     }
 
     @PutMapping("/{id}")

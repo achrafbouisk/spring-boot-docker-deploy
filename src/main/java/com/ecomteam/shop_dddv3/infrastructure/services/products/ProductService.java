@@ -10,8 +10,7 @@ import java.util.Map;
 public interface ProductService {
     ResponseEntity<?> getAllProducts();
 
-    ResponseEntity<String> createProduct(Product product, List<MultipartFile> files);
-
+    ResponseEntity<String> addProduct(Product product);
 
     ResponseEntity<?> getProductById(String id);
 

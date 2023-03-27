@@ -126,6 +126,7 @@ public class OrderServiceImpl implements OrderService {
         }
         existingOrder.setPaid(true);
         existingOrder.setPaidAt(LocalDateTime.now());
+        existingOrder.getItems().forEach(orderItem -> updateStock(orderItem.getProduct().getId(), orderItem.getQuantity()));
         orderRepository.save(existingOrder);
         return new ResponseEntity<>("Order payed successfully", HttpStatus.OK);
     }

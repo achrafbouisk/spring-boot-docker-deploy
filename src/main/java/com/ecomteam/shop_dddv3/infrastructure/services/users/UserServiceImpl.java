@@ -5,7 +5,6 @@ import com.ecomteam.shop_dddv3.domain.models.*;
 import com.ecomteam.shop_dddv3.domain.payload.requests.AuthenticationRequest;
 import com.ecomteam.shop_dddv3.domain.payload.requests.RegisterRequest;
 import com.ecomteam.shop_dddv3.domain.payload.responses.AuthenticationResponse;
-import com.ecomteam.shop_dddv3.domain.payload.responses.MessageResponse;
 import com.ecomteam.shop_dddv3.domain.repositories.ConfirmationTokenRepository;
 import com.ecomteam.shop_dddv3.domain.repositories.TokenRepository;
 import com.ecomteam.shop_dddv3.domain.repositories.UserRepository;
@@ -37,19 +36,15 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public ResponseEntity<?> authenticate(AuthenticationRequest request) {
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow();
 
         if(!user.isMailVerified()){
-            new AuthenticationResponse().builder()
-                    .message("Please verify your email.")
-                    .build();
+            return new ResponseEntity<>("Please verify your email", HttpStatus.FORBIDDEN);
         }
         else if (!userRepository.existsByEmail(request.getEmail())) {
-            return AuthenticationResponse.builder()
-                    .message("Email not found")
-                    .build();
+            return new ResponseEntity<>("Email not found", HttpStatus.NOT_FOUND);
         }
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -62,12 +57,13 @@ public class UserServiceImpl implements UserService {
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
 
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .build();
+        return ResponseEntity.ok(new AuthenticationResponse(
+                jwtToken,
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole()
+        ));
     }
 
     private void saveUserToken(User user, String jwtToken) {
@@ -93,12 +89,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public MessageResponse register(RegisterRequest request) {
+    public ResponseEntity<?> register(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            return MessageResponse.builder()
-                    .message("Email is already in use")
-                    .build();
+            return new ResponseEntity<>("Email is already in use!", HttpStatus.FORBIDDEN);
         }
         // Create new user's account
         var user = User.builder()
@@ -123,9 +117,7 @@ public class UserServiceImpl implements UserService {
 
         System.out.println("Confirmation Token: " + confirmationToken.getConfirmationToken());
 
-        return MessageResponse.builder()
-                .message("Please check your email to verify it! ")
-                .build();
+        return new ResponseEntity<>("Please check your email to verify it.", HttpStatus.OK);
     }
 
     @Override

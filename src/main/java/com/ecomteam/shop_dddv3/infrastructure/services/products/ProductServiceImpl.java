@@ -3,11 +3,15 @@ package com.ecomteam.shop_dddv3.infrastructure.services.products;
 import com.ecomteam.shop_dddv3.domain.models.Product;
 import com.ecomteam.shop_dddv3.domain.repositories.ProductRepository;
 import com.ecomteam.shop_dddv3.infrastructure.errors.ErrorMessage;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -26,6 +30,9 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ErrorMessage error;
+
+    private final GridFsTemplate gridFsTemplate;
+
 
     // GET ALL PRODUCT WITH SEARCH AND PAGINATION
     @Override
@@ -58,36 +65,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     // CREATE PRODUCT
-//    @Override
-//    public ResponseEntity<String> createProduct(Product product) {
-//
-//        Product saveProd = productRepository.save(product);
-//        if (saveProd != null)
-//            return new ResponseEntity<>("Product saved successfully!", HttpStatus.CREATED);
-//        else{
-//            error.setMessage("Error while saving product");
-//            return new ResponseEntity<>(error.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-
     @Override
-    public ResponseEntity<String> createProduct(Product product, List<MultipartFile> files) {
-
-        // Store image names in the product object
-        List<String> imageNames = new ArrayList<>();
-        for (MultipartFile file : files) {
-            String fileName = file.getOriginalFilename();
-            imageNames.add(fileName);
-            try {
-                // Store the image file locally
-                Path path = Paths.get("./uploads/" + fileName);
-                Files.write(path, file.getBytes());
-            } catch (IOException e) {
-                error.setMessage("Error while saving image: " + fileName);
-                return new ResponseEntity<>(error.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-        product.setImages(imageNames);
+    public ResponseEntity<String> addProduct(Product product) {
 
         Product saveProd = productRepository.save(product);
         if (saveProd != null)

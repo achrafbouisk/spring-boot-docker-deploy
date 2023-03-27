@@ -3,15 +3,13 @@ package com.ecomteam.shop_dddv3.infrastructure.services.users;
 import com.ecomteam.shop_dddv3.domain.models.User;
 import com.ecomteam.shop_dddv3.domain.payload.requests.AuthenticationRequest;
 import com.ecomteam.shop_dddv3.domain.payload.requests.RegisterRequest;
-import com.ecomteam.shop_dddv3.domain.payload.responses.AuthenticationResponse;
-import com.ecomteam.shop_dddv3.domain.payload.responses.MessageResponse;
 import org.springframework.http.ResponseEntity;
 
 public interface UserService {
 
-    AuthenticationResponse authenticate(AuthenticationRequest request);
+    ResponseEntity<?> authenticate(AuthenticationRequest request);
 
-    MessageResponse register(RegisterRequest request);
+    ResponseEntity<?> register(RegisterRequest request);
 
     ResponseEntity<?> confirmEmail(String confirmationToken);
 

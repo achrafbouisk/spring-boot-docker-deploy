@@ -20,12 +20,12 @@ public class AuthController {
     private final UserServiceImpl userService;
 
     @PostMapping("/signin")
-    public AuthenticationResponse authenticateUser(@Valid @RequestBody AuthenticationRequest loginRequest) {
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody AuthenticationRequest loginRequest) {
         return userService.authenticate(loginRequest);
     }
 
     @PostMapping("/signup")
-    public MessageResponse registerUser(@Valid @RequestBody RegisterRequest signUpRequest) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest signUpRequest) {
         return userService.register(signUpRequest);
     }
 
