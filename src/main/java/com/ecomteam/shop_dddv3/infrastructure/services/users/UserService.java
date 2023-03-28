@@ -3,6 +3,7 @@ package com.ecomteam.shop_dddv3.infrastructure.services.users;
 import com.ecomteam.shop_dddv3.domain.models.User;
 import com.ecomteam.shop_dddv3.domain.payload.requests.AuthenticationRequest;
 import com.ecomteam.shop_dddv3.domain.payload.requests.RegisterRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 
 public interface UserService {
@@ -20,6 +21,8 @@ public interface UserService {
     ResponseEntity<String> updateUserById(String id, User user);
 
     ResponseEntity<?> updatePassword(String id, String newPassword);
+
+    ResponseEntity<?> resetPassword(String email);
 
     ResponseEntity<String> deleteUserById(String id);
 

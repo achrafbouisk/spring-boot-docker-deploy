@@ -2,44 +2,50 @@ package com.ecomteam.shop_dddv3.controllers;
 
 import com.ecomteam.shop_dddv3.domain.models.User;
 import com.ecomteam.shop_dddv3.infrastructure.services.users.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
 @RequestMapping("/api/v2/users")
+@CrossOrigin(origins = "*", maxAge = 3600)
+@RequiredArgsConstructor
 public class UserController {
-    
-    @Autowired
-    private UserService usererService;
 
-	// @PreAuthorize("hasRole('ADMIN')")
+    private final UserService userService;
+
+//    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
     public ResponseEntity<?> getAllUsers() {
-        return usererService.getAllUsers();
+        return userService.getAllUsers();
     }
 
-	// @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable String id) {
-        return usererService.getUserById(id);
+        return userService.getUserById(id);
     }
 
     @PutMapping("/{id}/password")
     public ResponseEntity<?> updatePassword(@PathVariable String id, @RequestBody String newPassword){
-        return usererService.updatePassword(id, newPassword);
+        return userService.updatePassword(id, newPassword);
     }
 
-	// @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestParam("email") String email) {
+        return userService.resetPassword(email);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<String> updateUserById(@PathVariable String id, @RequestBody User user) {
-        return usererService.updateUserById(id, user);
+        return userService.updateUserById(id, user);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProductById(@PathVariable String id) {
-        return usererService.deleteUserById(id);
+        return userService.deleteUserById(id);
     }
 
 }

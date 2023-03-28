@@ -19,7 +19,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
+import java.util.Base64;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 
 @Data
@@ -52,6 +58,32 @@ public class User implements UserDetails {
     private List<Token> tokens;
 
     private boolean isMailVerified;
+
+    private String resetPasswordToken;
+
+    private Date resetPasswordExpire;
+
+    public String getResetPasswordToken() {
+        // Generating Token
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[20];
+        random.nextBytes(bytes);
+        String resetToken = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+
+        // Hashing and adding resetPasswordToken to User object
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(resetToken.getBytes());
+            resetPasswordToken = Base64.getEncoder().withoutPadding().encodeToString(hash);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        resetPasswordExpire = new Date(System.currentTimeMillis() + (15 * 60 * 1000));
+
+        return resetToken;
+    }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -10,7 +10,9 @@ import com.ecomteam.shop_dddv3.domain.repositories.TokenRepository;
 import com.ecomteam.shop_dddv3.domain.repositories.UserRepository;
 import com.ecomteam.shop_dddv3.infrastructure.errors.ErrorMessage;
 import com.ecomteam.shop_dddv3.infrastructure.services.mailing.MailService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
@@ -33,6 +35,12 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
+    private final HttpServletRequest request;
+
+    @Value("${app.url}")
+    private String appUrl;
+
 
 
     @Override
@@ -115,8 +123,6 @@ public class UserServiceImpl implements UserService {
                 +"http://localhost:8080/api/v2/auth/confirm-account?token="+confirmationToken.getConfirmationToken());
         mailService.sendMail(mailMessage);
 
-        System.out.println("Confirmation Token: " + confirmationToken.getConfirmationToken());
-
         return new ResponseEntity<>("Please check your email to verify it.", HttpStatus.OK);
     }
 
@@ -187,6 +193,30 @@ public class UserServiceImpl implements UserService {
             errorMessage.setMessage("User Not Found");
             return new ResponseEntity<>(errorMessage.getMessage(),HttpStatus.NOT_FOUND);
         }
+    }
+
+    @Override
+    public ResponseEntity<?> resetPassword(String email) {
+        var user = userRepository.findByEmail(email)
+                .orElseThrow();
+
+        if(user == null) return new ResponseEntity<>("Email not found", HttpStatus.NOT_FOUND);
+
+        var resetToken = user.getResetPasswordToken();
+        userRepository.save(user);
+
+        String resetPasswordUrl = appUrl + "/reset-password?token=" + resetToken;
+
+
+        String message = "Please click on this link to reset your password: " + resetPasswordUrl;
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(email);
+        mailMessage.setSubject("Complete Password Reset Request");
+        mailMessage.setText(message);
+        mailService.sendMail(mailMessage);
+
+        return new ResponseEntity<>("Please check your email to reset the password.", HttpStatus.OK);
+
     }
 
     //DELETE USER
