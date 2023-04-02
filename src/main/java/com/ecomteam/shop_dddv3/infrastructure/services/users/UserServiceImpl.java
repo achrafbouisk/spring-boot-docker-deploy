@@ -62,8 +62,8 @@ public class UserServiceImpl implements UserService {
         );
 
         var jwtToken = jwtService.generateToken(user);
-        revokeAllUserTokens(user);
-        saveUserToken(user, jwtToken);
+//        revokeAllUserTokens(user);
+//        saveUserToken(user, jwtToken);
 
         return ResponseEntity.ok(new AuthenticationResponse(
                 jwtToken,
@@ -113,6 +113,7 @@ public class UserServiceImpl implements UserService {
         var jwtToken = jwtService.generateToken(user);
         saveUserToken(savedUser, jwtToken);
 
+        //Email verification
         ConfirmationToken confirmationToken = new ConfirmationToken(user);
         confirmationTokenRepository.save(confirmationToken);
 
